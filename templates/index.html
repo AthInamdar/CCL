@@ -1,616 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SonarQube Report Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        
-        .dashboard-container {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        .left-panel {
-            flex: 1;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            overflow-y: auto;
-        }
-        
-        .right-panel {
-            flex: 1;
-            padding: 20px;
-            background-color: #f9f9f9;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .card-container {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background-color: #f0f0f0;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .card-title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        .severity-badge {
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #fff;
-        }
-        
-        .severity-BLOCKER {
-            background-color: #d9001b;
-        }
-        
-        .severity-CRITICAL {
-            background-color: #ff4500;
-        }
-        
-        .severity-MAJOR {
-            background-color: #e59400;
-        }
-        
-        .severity-MINOR {
-            background-color: #2c8ad3;
-        }
-        
-        .severity-INFO {
-            background-color: #67b245;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
-        
-        .info-section {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-        }
-        
-        .section-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding: 8px 0;
-        }
-        
-        .section-title h3 {
-            margin: 0;
-            font-size: 16px;
-            color: #444;
-        }
-        
-        .section-content {
-            display: none;
-            padding: 10px 0;
-        }
-        
-        .section-content.active {
-            display: block;
-        }
-        
-        .info-grid {
-            display: grid;
-            grid-template-columns: 120px 1fr;
-            gap: 8px;
-        }
-        
-        .info-label {
-            font-weight: bold;
-            color: #555;
-        }
-        
-        .info-value {
-            color: #333;
-        }
-        
-        .card-footer {
-            padding: 12px 20px;
-            text-align: center;
-            color: #777;
-            font-size: 14px;
-            border-top: 1px solid #eee;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        
-        .nav-button {
-            padding: 8px 16px;
-            background-color: #4a73e8;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .nav-button:hover {
-            background-color: #3a63d8;
-        }
-        
-        .nav-button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        
-        /* Chatbot Styles */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .chat-header {
-            padding: 15px 20px;
-            background-color: #4a73e8;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            min-height: 400px;
-            max-height: 600px;
-        }
-        
-        .message {
-            max-width: 80%;
-            padding: 12px 15px;
-            border-radius: 18px;
-            font-size: 16px;
-            line-height: 1.4;
-        }
-        
-        .user-message {
-            align-self: flex-end;
-            background-color: #4a73e8;
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-        
-        .bot-message {
-            align-self: flex-start;
-            background-color: #f0f0f0;
-            color: #333;
-            border-bottom-left-radius: 5px;
-        }
-        
-        .chat-input {
-            display: flex;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-top: 1px solid #ddd;
-        }
-        
-        .chat-input input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 16px;
-            outline: none;
-        }
-        
-        .chat-input button {
-            background-color: #4a73e8;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            margin-left: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .chat-input button:hover {
-            background-color: #3a63d8;
-        }
-        
-        .loader {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .loader span {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            background-color: #555;
-            border-radius: 50%;
-            margin: 0 3px;
-            animation: loader 1s infinite ease-in-out;
-        }
-        
-        .loader span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .loader span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
-        @keyframes loader {
-            0%, 100% {
-                transform: scale(0.3);
-                opacity: 0.3;
-            }
-            50% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-    </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sonarqube Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Sonarqube Report Dashboard</h1>
+    </header>
+
     <div class="dashboard-container">
-        <!-- Left Panel - SonarQube Cards -->
-        <div class="left-panel">
-            <h1>SonarQube Report</h1>
-            
-            <div class="card-container">
-                <div class="card-header">
-                    <div class="card-title">Issue Details</div>
-                    <div class="severity-badge" id="severity-badge">Severity</div>
-                </div>
-                
-                <div class="card-body">
-                    <div class="info-section">
-                        <div class="section-title" onclick="toggleSection('basic-info')">
-                            <h3>Basic Information</h3>
-                            <i class="fas fa-chevron-down" id="basic-info-icon"></i>
-                        </div>
-                        <div class="section-content" id="basic-info">
-                            <div class="info-grid">
-                                <div class="info-label">Component:</div>
-                                <div class="info-value" id="component-value"></div>
-                                
-                                <div class="info-label">Project:</div>
-                                <div class="info-value" id="project-value"></div>
-                                
-                                <div class="info-label">Line:</div>
-                                <div class="info-value" id="line-value"></div>
-                                
-                                <div class="info-label">Text Range:</div>
-                                <div class="info-value" id="textRange-value"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="info-section">
-                        <div class="section-title" onclick="toggleSection('message-info')">
-                            <h3>Message</h3>
-                            <i class="fas fa-chevron-down" id="message-info-icon"></i>
-                        </div>
-                        <div class="section-content" id="message-info">
-                            <div id="message-value"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="info-section">
-                        <div class="section-title" onclick="toggleSection('flows-info')">
-                            <h3>Flows</h3>
-                            <i class="fas fa-chevron-down" id="flows-info-icon"></i>
-                        </div>
-                        <div class="section-content" id="flows-info">
-                            <div id="flows-value"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="info-section">
-                        <div class="section-title" onclick="toggleSection('technical-info')">
-                            <h3>Technical Details</h3>
-                            <i class="fas fa-chevron-down" id="technical-info-icon"></i>
-                        </div>
-                        <div class="section-content" id="technical-info">
-                            <div class="info-grid">
-                                <div class="info-label">Effort:</div>
-                                <div class="info-value" id="effort-value"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="info-section">
-                        <div class="section-title" onclick="toggleSection('tags-info')">
-                            <h3>Tags</h3>
-                            <i class="fas fa-chevron-down" id="tags-info-icon"></i>
-                        </div>
-                        <div class="section-content" id="tags-info">
-                            <div id="tags-value"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-footer" id="card-footer">Card 1 of 1</div>
-                </div>
-                
-                <div class="nav-buttons">
-                    <button class="nav-button" onclick="showCard(currentIndex - 1)" id="prev-btn" disabled>
-                        <i class="fas fa-chevron-left"></i> Previous
-                    </button>
-                    <button class="nav-button" onclick="showCard(currentIndex + 1)" id="next-btn">
-                        Next <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
+      <!-- Left Side - Sonarqube Report Cards -->
+      <div class="cards-section">
+        <h2>Issues Found</h2>
+        <div class="loading-container" id="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading data...</p>
         </div>
-        
-        <!-- Right Panel - Gemini Chatbot -->
-        <div class="right-panel">
-            <h1>SonarQube Analysis Assistant</h1>
-            <div class="chat-container">
-                <div class="chat-header">
-                    Gemini Chatbot
+
+        <div class="card-container" id="card-container" style="display: none">
+          <div class="card-header">
+            <div class="card-title">Issue Details</div>
+            <div class="severity-badge" id="severity-badge">Severity</div>
+          </div>
+
+          <div class="card-body">
+            <div class="info-section">
+              <div class="section-title" onclick="toggleSection('basic-info')">
+                <h3>Basic Information</h3>
+                <i class="fas fa-chevron-down" id="basic-info-icon"></i>
+              </div>
+              <div class="section-content" id="basic-info">
+                <div class="info-grid">
+                  <div class="info-label">Component:</div>
+                  <div class="info-value" id="component-value"></div>
+
+                  <div class="info-label">Project:</div>
+                  <div class="info-value" id="project-value"></div>
+
+                  <div class="info-label">Line:</div>
+                  <div class="info-value" id="line-value"></div>
+
+                  <div class="info-label">Text Range:</div>
+                  <div class="info-value" id="textRange-value"></div>
                 </div>
-                <div class="chat-messages" id="chat-messages">
-                    <div class="message bot-message">
-                        Hello! I'm your SonarQube analysis assistant. I can help you understand the issues in your code analysis report. What would you like to know?
-                    </div>
-                </div>
-                <div class="loader" id="chat-loader">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-                <div class="chat-input">
-                    <input type="text" id="user-input" placeholder="Ask me about the SonarQube report...">
-                    <button onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
+              </div>
             </div>
+
+            <div class="info-section">
+              <div
+                class="section-title"
+                onclick="toggleSection('message-info')"
+              >
+                <h3>Message</h3>
+                <i class="fas fa-chevron-down" id="message-info-icon"></i>
+              </div>
+              <div class="section-content" id="message-info">
+                <div id="message-value"></div>
+              </div>
+            </div>
+
+            <div class="info-section">
+              <div class="section-title" onclick="toggleSection('flows-info')">
+                <h3>Flows</h3>
+                <i class="fas fa-chevron-down" id="flows-info-icon"></i>
+              </div>
+              <div class="section-content" id="flows-info">
+                <div id="flows-value"></div>
+              </div>
+            </div>
+
+            <div class="info-section">
+              <div
+                class="section-title"
+                onclick="toggleSection('technical-info')"
+              >
+                <h3>Technical Details</h3>
+                <i class="fas fa-chevron-down" id="technical-info-icon"></i>
+              </div>
+              <div class="section-content" id="technical-info">
+                <div class="info-grid">
+                  <div class="info-label">Effort:</div>
+                  <div class="info-value" id="effort-value"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-section">
+              <div class="section-title" onclick="toggleSection('tags-info')">
+                <h3>Tags</h3>
+                <i class="fas fa-chevron-down" id="tags-info-icon"></i>
+              </div>
+              <div class="section-content" id="tags-info">
+                <div id="tags-value"></div>
+              </div>
+            </div>
+
+            <div class="card-footer" id="card-footer">Card 1 of 1</div>
+          </div>
+
+          <div class="nav-buttons">
+            <button
+              class="nav-button"
+              onclick="showCard(currentIndex - 1)"
+              id="prev-btn"
+            >
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <button
+              class="nav-button"
+              onclick="showCard(currentIndex + 1)"
+              id="next-btn"
+            >
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
+      </div>
+
+      <!-- Right Side - Gemini Chatbot -->
+      <div class="chatbot-section">
+        <h2>Gemini Assistant</h2>
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-message bot">
+              <div class="message-content">
+                Hello! I'm your Sonarqube assistant. I can help you understand
+                the issues in your report and suggest solutions. What would you
+                like to know about your Sonarqube findings?
+              </div>
+            </div>
+          </div>
+          <div class="thinking-indicator" id="thinking-indicator">
+            <div class="dot-flashing"></div>
+            Thinking...
+          </div>
+          <div class="chat-input-container">
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Ask me about your Sonarqube issues..."
+              onkeypress="handleChatInputKeypress(event)"
+            />
+            <button id="send-btn" onclick="sendMessage()">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        let issues = [];
-        let currentIndex = 0;
-        
-        // Fetch data when page loads
-        window.addEventListener('DOMContentLoaded', fetchData);
-        
-        // Enter key to send message
-        document.getElementById('user-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        
-        // Toggle section visibility
-        function toggleSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            const icon = document.getElementById(`${sectionId}-icon`);
-            
-            if (section.classList.contains('active')) {
-                section.classList.remove('active');
-                icon.classList.remove('fa-chevron-up');
-                icon.classList.add('fa-chevron-down');
-            } else {
-                section.classList.add('active');
-                icon.classList.remove('fa-chevron-down');
-                icon.classList.add('fa-chevron-up');
-            }
-        }
-        
-        // Fetch data from API
-        async function fetchData() {
-            try {
-                const response = await fetch('/api/data');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                
-                issues = await response.json();
-                
-                if (issues.length > 0) {
-                    showCard(0);
-                    updateCardFooter();
-                } else {
-                    alert('No issues found in the report');
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                alert('Error loading data. Please check the console for details.');
-            }
-        }
-        
-        // Display card data
-        function showCard(index) {
-            if (index < 0 || index >= issues.length) {
-                return;
-            }
-            
-            currentIndex = index;
-            const issue = issues[index];
-            
-            // Update severity badge
-            const severityBadge = document.getElementById('severity-badge');
-            severityBadge.textContent = issue.severity || 'Unknown';
-            severityBadge.className = 'severity-badge severity-' + (issue.severity || 'UNKNOWN');
-            
-            // Update basic info
-            document.getElementById('component-value').textContent = issue.component || 'N/A';
-            document.getElementById('project-value').textContent = issue.project || 'N/A';
-            document.getElementById('line-value').textContent = issue.line || 'N/A';
-            
-            // Text range could be a complex object, handle appropriately
-            let textRangeDisplay = 'N/A';
-            if (issue.textRange) {
-                try {
-                    const textRange = JSON.parse(issue.textRange);
-                    textRangeDisplay = `Start: ${textRange.startLine}:${textRange.startOffset}, End: ${textRange.endLine}:${textRange.endOffset}`;
-                } catch (e) {
-                    textRangeDisplay = issue.textRange;
-                }
-            }
-            document.getElementById('textRange-value').textContent = textRangeDisplay;
-            
-            // Update message
-            document.getElementById('message-value').textContent = issue.message || 'No message provided';
-            
-            // Update flows
-            let flowsDisplay = 'No flows available';
-            if (issue.flows) {
-                try {
-                    const flows = JSON.parse(issue.flows);
-                    if (flows.length > 0) {
-                        flowsDisplay = '';
-                        flows.forEach((flow, i) => {
-                            flowsDisplay += `<div><strong>Flow ${i+1}:</strong></div>`;
-                            flow.locations.forEach((loc, j) => {
-                                flowsDisplay += `<div>Step ${j+1}: ${loc.component} (Line: ${loc.textRange.startLine})</div>`;
-                            });
-                        });
-                    }
-                } catch (e) {
-                    flowsDisplay = issue.flows;
-                }
-            }
-            document.getElementById('flows-value').innerHTML = flowsDisplay;
-            
-            // Update effort
-            document.getElementById('effort-value').textContent = issue.effort || 'N/A';
-            
-            // Update tags
-            let tagsDisplay = 'No tags';
-            if (issue.tags) {
-                try {
-                    const tags = JSON.parse(issue.tags);
-                    if (tags.length > 0) {
-                        tagsDisplay = tags.join(', ');
-                    }
-                } catch (e) {
-                    if (issue.tags) {
-                        tagsDisplay = issue.tags;
-                    }
-                }
-            }
-            document.getElementById('tags-value').textContent = tagsDisplay;
-            
-            // Update footer
-            updateCardFooter();
-            
-            // Update navigation buttons
-            document.getElementById('prev-btn').disabled = currentIndex === 0;
-            document.getElementById('next-btn').disabled = currentIndex === issues.length - 1;
-        }
-        
-        // Update card counter
-        function updateCardFooter() {
-            document.getElementById('card-footer').textContent = `Card ${currentIndex + 1} of ${issues.length}`;
-        }
-        
-        // Send message to chatbot
-        async function sendMessage() {
-            const userInput = document.getElementById('user-input');
-            const message = userInput.value.trim();
-            
-            if (!message) return;
-            
-            // Add user message to chat
-            addMessage(message, 'user');
-            userInput.value = '';
-            
-            // Show loader
-            document.getElementById('chat-loader').style.display = 'block';
-            
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to get response');
-                }
-                
-                const data = await response.json();
-                
-                // Hide loader
-                document.getElementById('chat-loader').style.display = 'none';
-                
-                // Add bot message to chat
-                addMessage(data.response, 'bot');
-                
-            } catch (error) {
-                console.error('Error sending message:', error);
-                document.getElementById('chat-loader').style.display = 'none';
-                addMessage('Sorry, I encountered an error processing your request.', 'bot');
-            }
-        }
-        
-        // Add message to chat
-        function addMessage(text, sender) {
-            const chatMessages = document.getElementById('chat-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            messageDiv.textContent = text;
-            chatMessages.appendChild(messageDiv);
-            
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Initialize sections as closed
-        document.addEventListener('DOMContentLoaded', function() {
-            // Open the first section by default
-            toggleSection('basic-info');
-        });
-    </script>
-</body>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
 </html>
