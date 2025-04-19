@@ -12,7 +12,7 @@ app = Flask(__name__)
 # Function to fetch CSV data from GCP Storage
 def fetch_csv_data(gcs_url):
     # Set the path to your service account JSON file
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "durable-height-454113-n9-34ea69735ea6.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "json-file-path"
 
     # Parse the GCS URL, expected format:
     # "https://storage.googleapis.com/<bucket>/<path-to-blob>"
@@ -61,7 +61,7 @@ def chat():
             return jsonify({"response": "Please provide a message."})
         
         # Get data for context
-        url = "https://storage.googleapis.com/your-processed-csvs/processed/sonarqube_report.csv"
+        url = "https://storage.cloud.google.com/your-processed-csvs/processed/sonarqube_report.csv"
         df = fetch_csv_data(url)
         
         # Process the user message and generate a response based on CSV data
@@ -72,68 +72,36 @@ def chat():
 
 def process_chat_request(message, df):
     """
-    A smarter chatbot that handles various queries about SonarQube report data.
+    Process the user's chat message using the SonarQube data.
+    This is a simple implementation - in production you would integrate with Gemini API.
     """
     message = message.lower()
-    df.columns = [col.lower() for col in df.columns]
-
-    response_parts = []
-
-    # Show help
-    if "help" in message or "what can you do" in message:
-        return (
-            "I can help you understand your SonarQube analysis report.\n"
-            "Try asking things like:\n"
-            "- How many bugs are there?\n"
-            "- Count issues by severity\n"
-            "- What are the most frequent rules?\n"
-            "- Show vulnerabilities\n"
-            "- Blocker issues count\n"
-        )
-
+    
     # Count issues by severity
     if "count" in message and ("severity" in message or "issues" in message):
-        severity_counts = df['severity'].str.upper().value_counts().to_dict()
-        response_parts.append(f"Issue counts by severity: {severity_counts}")
-
-    # Frequent rules
-    if "frequent" in message or "top rules" in message:
-        if 'rule' in df.columns:
-            rule_counts = df['rule'].value_counts().head(5).to_dict()
-            response_parts.append("Most frequent rules:")
-            for rule, count in rule_counts.items():
-                response_parts.append(f"- {rule}: {count} times")
-        else:
-            response_parts.append("The CSV does not contain a 'rule' column.")
-
-    # Specific severity
-    for sev in ["blocker", "critical", "major", "minor", "info"]:
-        if sev in message:
-            count = len(df[df['severity'].str.lower() == sev])
-            response_parts.append(f"There are {count} {sev.upper()} severity issues.")
-
-    # Specific types (bugs, vulnerabilities, smells)
-    if "bug" in message:
-        count = len(df[df['type'].str.lower() == "bug"])
-        response_parts.append(f"There are {count} bug(s) reported.")
+        severity_counts = df['severity'].value_counts().to_dict()
+        return f"Issue counts by severity: {severity_counts}"
     
-    if "vulnerab" in message:
-        count = len(df[df['type'].str.lower() == "vulnerability"])
-        response_parts.append(f"There are {count} vulnerability issue(s).")
-
-    if "smell" in message:
-        count = len(df[df['type'].str.lower() == "code_smell"])
-        response_parts.append(f"There are {count} code smell(s).")
-
-    # If no specific pattern matched
-    if not response_parts:
+    # List rules that appear most frequently
+    elif "frequent" in message and "rules" in message:
+        rule_counts = df['rule'].value_counts().head(5).to_dict()
+        response = "Most frequent rules:\n"
+        for rule, count in rule_counts.items():
+            response += f"- {rule}: {count} occurrences\n"
+        return response
+        
+    # Get info about specific severity
+    elif any(sev in message for sev in ["blocker", "critical", "major", "minor", "info"]):
+        for sev in ["blocker", "critical", "major", "minor", "info"]:
+            if sev in message:
+                count = len(df[df['severity'].str.lower() == sev])
+                return f"There are {count} issues with {sev} severity."
+    
+    # Default response if no specific intent is detected
+    else:
         total_issues = len(df)
-        severity_breakdown = df['severity'].str.upper().value_counts().to_dict()
-        response_parts.append(f"I can provide information about {total_issues} SonarQube issues.")
-        response_parts.append(f"Severity breakdown: {severity_breakdown}")
-        response_parts.append("Try asking about bugs, vulnerabilities, rules, or issue severity.")
-
-    return "\n".join(response_parts)
+        severity_breakdown = df['severity'].value_counts().to_dict()
+        return f"I can provide information about the {total_issues} SonarQube issues. The severity breakdown is: {severity_breakdown}. What specific information would you like to know?"
 
 if __name__ == '__main__':
     app.run(debug=True)
