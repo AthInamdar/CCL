@@ -34,9 +34,36 @@
           </div>
 
           <div class="card-body">
+            <!-- Key Information Section -->
+            <div class="info-section">
+              <div class="section-title" onclick="toggleSection('key-info')">
+                <h3>Issue Identification</h3>
+                <i class="fas fa-chevron-down" id="key-info-icon"></i>
+              </div>
+              <div class="section-content" id="key-info">
+                <div class="info-grid">
+                  <div class="info-label">Key:</div>
+                  <div class="info-value" id="key-value"></div>
+
+                  <div class="info-label">Rule:</div>
+                  <div class="info-value" id="rule-value"></div>
+
+                  <div class="info-label">Type:</div>
+                  <div class="info-value" id="type-value"></div>
+
+                  <div class="info-label">Status:</div>
+                  <div class="info-value" id="status-value"></div>
+                  
+                  <div class="info-label">Issue Status:</div>
+                  <div class="info-value" id="issueStatus-value"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Basic Information Section -->
             <div class="info-section">
               <div class="section-title" onclick="toggleSection('basic-info')">
-                <h3>Basic Information</h3>
+                <h3>Location</h3>
                 <i class="fas fa-chevron-down" id="basic-info-icon"></i>
               </div>
               <div class="section-content" id="basic-info">
@@ -46,9 +73,18 @@
 
                   <div class="info-label">Project:</div>
                   <div class="info-value" id="project-value"></div>
+                  
+                  <div class="info-label">Project Name:</div>
+                  <div class="info-value" id="projectName-value"></div>
+
+                  <div class="info-label">Organization:</div>
+                  <div class="info-value" id="organization-value"></div>
 
                   <div class="info-label">Line:</div>
                   <div class="info-value" id="line-value"></div>
+
+                  <div class="info-label">Hash:</div>
+                  <div class="info-value" id="hash-value"></div>
 
                   <div class="info-label">Text Range:</div>
                   <div class="info-value" id="textRange-value"></div>
@@ -56,11 +92,9 @@
               </div>
             </div>
 
+            <!-- Message Section -->
             <div class="info-section">
-              <div
-                class="section-title"
-                onclick="toggleSection('message-info')"
-              >
+              <div class="section-title" onclick="toggleSection('message-info')">
                 <h3>Message</h3>
                 <i class="fas fa-chevron-down" id="message-info-icon"></i>
               </div>
@@ -69,6 +103,7 @@
               </div>
             </div>
 
+            <!-- Flows Section -->
             <div class="info-section">
               <div class="section-title" onclick="toggleSection('flows-info')">
                 <h3>Flows</h3>
@@ -79,11 +114,29 @@
               </div>
             </div>
 
+            <!-- Clean Code Section -->
             <div class="info-section">
-              <div
-                class="section-title"
-                onclick="toggleSection('technical-info')"
-              >
+              <div class="section-title" onclick="toggleSection('clean-code-info')">
+                <h3>Clean Code Information</h3>
+                <i class="fas fa-chevron-down" id="clean-code-info-icon"></i>
+              </div>
+              <div class="section-content" id="clean-code-info">
+                <div class="info-grid">
+                  <div class="info-label">Clean Code Attribute:</div>
+                  <div class="info-value" id="cleanCodeAttribute-value"></div>
+                  
+                  <div class="info-label">Category:</div>
+                  <div class="info-value" id="cleanCodeAttributeCategory-value"></div>
+                  
+                  <div class="info-label">Impacts:</div>
+                  <div class="info-value" id="impacts-value"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Technical Details Section -->
+            <div class="info-section">
+              <div class="section-title" onclick="toggleSection('technical-info')">
                 <h3>Technical Details</h3>
                 <i class="fas fa-chevron-down" id="technical-info-icon"></i>
               </div>
@@ -91,10 +144,23 @@
                 <div class="info-grid">
                   <div class="info-label">Effort:</div>
                   <div class="info-value" id="effort-value"></div>
+                  
+                  <div class="info-label">Debt:</div>
+                  <div class="info-value" id="debt-value"></div>
+                  
+                  <div class="info-label">Author:</div>
+                  <div class="info-value" id="author-value"></div>
+                  
+                  <div class="info-label">Created:</div>
+                  <div class="info-value" id="creationDate-value"></div>
+                  
+                  <div class="info-label">Updated:</div>
+                  <div class="info-value" id="updateDate-value"></div>
                 </div>
               </div>
             </div>
 
+            <!-- Tags Section -->
             <div class="info-section">
               <div class="section-title" onclick="toggleSection('tags-info')">
                 <h3>Tags</h3>
@@ -149,9 +215,8 @@
               type="text"
               id="chat-input"
               placeholder="Ask me about your Sonarqube issues..."
-              onkeypress="handleChatInputKeypress(event)"
             />
-            <button id="send-btn" onclick="sendMessage()">
+            <button id="send-btn">
               <i class="fas fa-paper-plane"></i>
             </button>
           </div>

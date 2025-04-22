@@ -604,3 +604,57 @@ h3 {
         background-color: rgba(66, 133, 244, 0.2);
     }
 }
+
+.impact-item {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.impact-quality {
+    font-weight: 500;
+    color: #444;
+}
+
+.impact-severity {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Flow location styling */
+.flow-location-header {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 0.3rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.2rem;
+}
+
+/* Make sure text wraps properly in the info values */
+.info-value {
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+/* Adjust section spacing */
+.section-content {
+    padding: 15px;
+    background-color: white;
+    border-top: 1px solid #e1e1e1;
+}
+
+/* Style for JSON data representation */
+.code-like {
+    font-family: monospace;
+    white-space: pre-wrap;
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
